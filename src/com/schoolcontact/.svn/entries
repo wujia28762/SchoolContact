@@ -1,0 +1,58 @@
+10
+
+dir
+227
+svn://eon/client/SchoolContact/src/com/schoolcontact
+svn://eon/client
+
+
+
+2015-09-17T01:33:07.373000Z
+227
+xiaokui
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+677a2cab-7dfe-744e-a2d5-b658aa0b732d
+
+adapter
+dir
+
+model
+dir
+
+service
+dir
+
+utils
+dir
+
+widget
+dir
+
+message
+dir
+
+listener
+dir
+
+Base
+dir
+
+provider
+dir
+
+view
+dir
+

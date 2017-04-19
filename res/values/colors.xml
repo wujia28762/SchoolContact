@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#48a937</color>
+    <color name="hei">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="light_white">#bababa</color>
+    <color name="green">#48a937</color>
+    <color name="touming">#80FFFFFF</color>
+    <color name="rc_title_bg1">#3498DB</color>
+    <color name="coral">#CCFFCC</color><!--珊瑚色 -->
+    <color name="hui">#eee</color><!--珊瑚色 -->
+     <color name="touming50">#50FFFFFF</color>
+</resources>

@@ -1,0 +1,535 @@
+package com.schoolcontact.view;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
+import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.SimpleAdapter;
+import android.widget.SimpleAdapter.ViewBinder;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.school_contact.main.R;
+import com.schoolcontact.Base.ScContext;
+import com.schoolcontact.model.AttachmentInfo;
+import com.schoolcontact.model.GroupInfo;
+import com.schoolcontact.model.ItemAttachment;
+import com.schoolcontact.model.ReturnMessage;
+import com.schoolcontact.service.GroupService;
+import com.schoolcontact.service.UserService;
+import com.schoolcontact.utils.DialogUtils;
+import com.schoolcontact.utils.EventList;
+import com.schoolcontact.utils.ImageUtil;
+import com.schoolcontact.utils.LoadingDialog;
+import com.schoolcontact.utils.PicSelectUtils;
+import com.schoolcontact.utils.StringUtils;
+
+public class SendMoodActivity extends BaseActivity {
+
+	private GridView gridView1; // 网格显示缩略图
+	// private Button buttonPublish; // 发布按钮
+	private final int IMAGE_OPEN = 1; // 打开图片标记
+	private String pathImage; // 选择图片路径
+	private UserService cs = new UserService();
+	private GroupService gs = new GroupService();
+	// private Bitmap bmp; // 导入临时图片
+	private boolean IsSubmit;
+	private Handler mHandler;
+	private boolean HasImp;
+	private List<HashMap<String, Object>> imageItem;
+	private SimpleAdapter simpleAdapter; // 适配器
+	private EditText et_content;
+	private Dialog dialog;
+	private SendMoodActivity instance = this;
+	private List<String> data = new ArrayList<String>();
+	private TextView loginTitle;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		/*
+		 * 防止键盘挡住输入框 不希望遮挡设置activity属性 android:windowSoftInputMode="adjustPan"
+		 * 希望动态调整高度 android:windowSoftInputMode="adjustResize"
+		 */
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+		setContentView(R.layout.activity_sendmood);
+		// 获取控件对象
+		onInit();
+	}
+
+	// 获取图片路径 响应startActivityForResult
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		// 打开图片
+		if (resultCode == RESULT_OK && requestCode == IMAGE_OPEN) {
+			Uri uri = data.getData();
+			if (!TextUtils.isEmpty(uri.getAuthority())) {
+				// 查询选择图片
+				Cursor cursor = getContentResolver().query(uri,
+						new String[] { MediaStore.Images.Media.DATA }, null,
+						null, null);
+				// 返回 没找到选择图片
+				if (null == cursor) {
+					return;
+				}
+				// 光标移动至开头 获取图片路径
+				cursor.moveToFirst();
+				pathImage = cursor.getString(cursor
+						.getColumnIndex(MediaStore.Images.Media.DATA));
+				System.out.println("!!!!!!!!!!!" + pathImage);
+			}
+		} // end if 打开图片
+	}
+
+	// 刷新图片
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (!TextUtils.isEmpty(pathImage)) {
+			Bitmap addbmp = null;
+			ReferenceQueue<Bitmap> queue = new ReferenceQueue<Bitmap>();
+			SoftReference<Bitmap> bitmapref = new SoftReference<Bitmap>(addbmp,
+					queue);
+			if (bitmapref != null) {
+				addbmp = (Bitmap) bitmapref.get();
+			}
+			addbmp = ImageUtil.getSmallBitmap(pathImage);
+
+			final HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("itemImage", addbmp);
+			map.put("itemText", "");
+			map.put("FinshText", "");
+			imageItem.add(map);
+
+			simpleAdapter = new SimpleAdapter(this, imageItem,
+					R.layout.griditem_addpic, new String[] { "itemImage",
+							"itemText", "FinshText" },
+					new int[] { R.id.imageView1, R.id.image_text,
+							R.id.image_finish });
+			simpleAdapter.setViewBinder(new ViewBinder() {
+				@Override
+				public boolean setViewValue(View view, Object data,
+						String textRepresentation) {
+					if (view instanceof ImageView && data instanceof Bitmap) {
+						ImageView i = (ImageView) view;
+						i.setImageBitmap((Bitmap) data);
+
+						return true;
+					}
+
+					return false;
+				}
+			});
+			gridView1.setAdapter(simpleAdapter);
+			simpleAdapter.notifyDataSetChanged();
+			// 刷新后释放防止手机休眠后自动添加
+			try {
+				cs.uploadMoodImg(
+						ImageUtil.compressImage(
+								PicSelectUtils.getRealFilePath(instance,
+										Uri.parse(pathImage)), "TEMP.jpg", 60),
+						map, instance);
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			pathImage = null;
+		}
+	}
+
+	/*
+	 * Dialog对话框提示用户删除操作 position为删除图片位置
+	 */
+	protected void dialog(final int position) {
+		AlertDialog.Builder builder = new Builder(this);
+		builder.setMessage("确认移除已添加图片吗？");
+		builder.setTitle("提示");
+		builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				imageItem.remove(position);
+				simpleAdapter.notifyDataSetChanged();
+			}
+		});
+		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		builder.create().show();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+//		case R.id.login_title:
+//			if(sccontext.getUi().getUser_group().equals("教师")){
+//				dialog.show();
+//			}else {
+//				Toast.makeText(this, "学生只能在当前班级发布心情", Toast.LENGTH_SHORT).show();
+//			}
+//			break;
+		case R.id.tv_submit:
+
+			boolean can = canSubmit(imageItem);
+			if ((can && imageItem.size() > 1)
+					|| !TextUtils.isEmpty(et_content.getText().toString())) {
+
+				if (TextUtils.isEmpty(sccontext.getCurr_group())) {
+					dialog.show();
+					dialog.setCanceledOnTouchOutside(true);
+				} else {
+					mDialog.show();
+					gs.publishGroup(data, et_content.getText().toString(), this);
+					// IsSubmit = false;
+				}
+
+			} else if (!can) {
+				Toast.makeText(this, "图片上传中...", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, "写点什么吧？", Toast.LENGTH_SHORT).show();
+			}
+			break;
+		case R.id.backtext:
+
+			DialogUtils.getAlertDialog("确定取消编辑么？", this);
+
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	@Override
+	public void dealMessage(ReturnMessage rm) {
+
+		switch (rm.getEvent()) {
+//		case EventList.UPLOADIMAGEPROGRESS:
+//			uploadImagePb.setVisibility(View.VISIBLE);
+//			uploadImagePb.setProgress(Integer.valueOf(rm.getMess()));
+//			if(Integer.valueOf(rm.getMess())==100){
+//				Timer timer = new Timer();
+//				TimerTask timeTask = null;
+//				if (timeTask == null) {
+//					timeTask = new TimerTask() {
+//						public void run() {
+//							uploadPbHandler.sendEmptyMessage(1);
+//						}
+//					};
+//				}
+//				timer.schedule(timeTask, 500);
+//			}
+//			break;
+		case EventList.ADDATTACHMENT:
+			simpleAdapter.notifyDataSetChanged();
+//			if (rm.getCode().equals(EventList.SCUESS)) {
+//				simpleAdapter.notifyDataSetChanged();
+//				Toast.makeText(this, "加载附件成功", Toast.LENGTH_SHORT).show();
+//				if (canSubmit(imageItem)) {
+//					canSubmit = true;
+//				}
+				
+				// if (rm.getData() instanceof AttachmentInfo) {
+				//
+				// if (IsSubmit && canSubmit(imageItem)) {
+				// if (TextUtils.isEmpty(sccontext.getCurr_group())) {
+				// dialog.show();
+				// dialog.setCanceledOnTouchOutside(true);
+				// gs.publishGroup(data, et_content.getText()
+				// .toString(), this);
+				// IsSubmit = false;
+				// }
+				// }
+				// } else {
+				// Toast.makeText(this, rm.getMess(), Toast.LENGTH_SHORT)
+				// .show();
+				// }
+//			}
+//			break;
+		case EventList.SENDMOOD:
+			if (mDialog.isShowing()) {
+				mDialog.dismiss();
+			}
+			if (rm.getCode().equals("y")) {
+
+		//		Toast.makeText(this, rm.getMess(), Toast.LENGTH_SHORT).show();
+
+				data.clear();
+				this.finish();
+			} else {
+		//		Toast.makeText(this, rm.getMess(), Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+
+	public void InitChooseGroupDialog() {
+
+		dialog = new Dialog(this);
+		// dialog.show();
+		// dialog.setCanceledOnTouchOutside(true);
+		dialog.setTitle("发往：");
+		Window window = dialog.getWindow();
+
+		// window.setGravity(Gravity.BOTTOM);
+		// window.setWindowAnimations(R.style.Animation_Dialog_Bottom);
+		window.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		// window.setBackgroundDrawable(new ColorDrawable(0));
+		dialog.setTitle(R.string.chooseGroup);
+		// View view = window.getDecorView();
+
+		LinearLayout listLayout = new LinearLayout(this);
+		listLayout.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout.LayoutParams llParams = new LinearLayout.LayoutParams(
+				FrameLayout.LayoutParams.MATCH_PARENT,
+				FrameLayout.LayoutParams.WRAP_CONTENT);
+		listLayout.setLayoutParams(llParams);
+
+		if (sccontext.getTechCurrGroupInfos() != null)
+			for (GroupInfo groupInfo : sccontext.getTechCurrGroupInfos()) {
+				Button btn1 = new Button(this);
+				btn1.setBackgroundColor(Color.WHITE);
+				btn1.setText(groupInfo.getGroup_name());
+				btn1.setTag(groupInfo.getGroup_id());
+				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+						FrameLayout.LayoutParams.MATCH_PARENT,
+						FrameLayout.LayoutParams.WRAP_CONTENT);
+				params.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+				params.bottomMargin = 10;
+				listLayout.addView(btn1);
+//				window.addContentView(btn1, params);
+				btn1.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						dialog.dismiss();
+						// Intent it = new Intent();
+						String curr_groupName = ((Button) v).getText()
+								.toString();
+						String curr_group = ((Button) v).getTag().toString();
+						ScContext.getInstance().setCurr_group(curr_group);
+						ScContext.getInstance().setCurr_groupName(curr_groupName);
+						
+						loginTitle.setText("发布："+sccontext.getCurr_groupName());
+
+						if (ScContext.getInstance().getCurr_user() != null) {
+							
+							ScContext
+							.getInstance()
+							.getmPreferences()
+							.edit()
+							.putString(
+									"userdisplaygroupid_"
+											+ ScContext.getInstance()
+													.getCurr_user(),
+									StringUtils.enCorder((((Button) v)
+											.getTag().toString())))
+							.commit();
+					
+							ScContext
+							.getInstance()
+							.getmPreferences()
+							.edit()
+							.putString(
+									"userdisplaygroupname_"
+											+ ScContext.getInstance()
+													.getCurr_user(),
+									StringUtils.enCorder((((Button) v)
+											.getText().toString())))
+							.commit();
+							
+							ScContext
+									.getInstance()
+									.getmPreferences()
+									.edit()
+									.putString(
+											"usercurrgroupid_"
+													+ ScContext.getInstance()
+															.getCurr_user(),
+											StringUtils.enCorder(curr_group))
+									.commit();
+							ScContext
+									.getInstance()
+									.getmPreferences()
+									.edit()
+									.putString(
+											"usercurrgroupname_"
+													+ ScContext.getInstance()
+															.getCurr_user(),
+											StringUtils
+													.enCorder(curr_groupName))
+									.commit();
+							/*mDialog.show();
+							gs.publishGroup(data, et_content.getText()
+									.toString(), instance);*/
+						}
+
+					}
+				});
+			}
+		
+		ScrollView scroller = new ScrollView(this);
+		scroller.addView(listLayout);
+		window.addContentView(scroller, llParams);
+
+	}
+
+	@Override
+	public void onInit() {
+
+		mDialog = new LoadingDialog(this);
+		loginTitle = (TextView) findViewById(R.id.login_title);
+		loginTitle.setOnClickListener(this);
+		if(sccontext.getCurr_groupName()==null){
+			loginTitle.setText("发布心情");
+		}else {
+			loginTitle.setText("发布："+sccontext.getCurr_groupName());
+		}
+		findViewById(R.id.backtext).setOnClickListener(this);
+		mHandler = new Handler();
+		InitChooseGroupDialog();
+		et_content = (EditText) findViewById(R.id.et_add_content);
+		findViewById(R.id.tv_submit).setOnClickListener(this);
+		gridView1 = (GridView) findViewById(R.id.gridView1);
+		mDialog.setText(R.string.publishing);
+		/*
+		 * 载入默认图片添加图片加号 通过适配器实现 SimpleAdapter参数imageItem为数据源
+		 * R.layout.griditem_addpic为布局
+		 */
+		Bitmap bmp = null;
+		ReferenceQueue<Bitmap> queue = new ReferenceQueue<Bitmap>();
+		SoftReference<Bitmap> bitmapref = new SoftReference<Bitmap>(bmp, queue);
+		if (bitmapref != null) {
+			bmp = (Bitmap) bitmapref.get();
+		}
+		// 获取资源图片加号
+		bmp = BitmapFactory.decodeResource(getResources(), R.drawable.add_img);
+		imageItem = new ArrayList<HashMap<String, Object>>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("itemImage", bmp);
+		map.put("itemText", "index");
+		map.put("FinshText", "");
+		imageItem.add(map);
+
+		simpleAdapter = new SimpleAdapter(this, imageItem,
+				R.layout.griditem_addpic, new String[] { "itemImage",
+						"itemText", "FinshText" }, new int[] { R.id.imageView1,
+						R.id.image_text, R.id.image_finish });
+		/*
+		 * HashMap载入bmp图片在GridView中不显示,但是如果载入资源ID能显示 如 map.put("itemImage",
+		 * R.drawable.img); 解决方法: 1.自定义继承BaseAdapter实现 2.ViewBinder()接口实现 参考
+		 * http://blog.csdn.net/admin_/article/details/7257901
+		 */
+		simpleAdapter.setViewBinder(new ViewBinder() {
+			@Override
+			public boolean setViewValue(View view, Object data,
+					String textRepresentation) {
+				// TODO Auto-generated method stub
+				if (view instanceof ImageView && data instanceof Bitmap) {
+					ImageView i = (ImageView) view;
+					i.setImageBitmap((Bitmap) data);
+					return true;
+				}
+				return false;
+			}
+		});
+		gridView1.setAdapter(simpleAdapter);
+
+		/*
+		 * 监听GridView点击事件 报错:该函数必须抽象方法 故需要手动导入import android.view.View;
+		 */
+		gridView1.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View v,
+					int position, long id) {
+				if (imageItem.size() == 10 && position == 0) { // 第一张为默认图片
+					Toast.makeText(SendMoodActivity.this, "图片数9张已满",
+							Toast.LENGTH_SHORT).show();
+				} else if (position == 0) { // 点击图片位置为+ 0对应0张图片
+					Toast.makeText(SendMoodActivity.this, "添加图片",
+							Toast.LENGTH_SHORT).show();
+					// 选择图片
+					Intent intent = new Intent(
+							Intent.ACTION_PICK,
+							android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+					startActivityForResult(intent, IMAGE_OPEN);
+					// 通过onResume()刷新数据
+				} else {
+					dialog(position);
+					// Toast.makeText(MainActivity.this, "点击第"+(position +
+					// 1)+" 号图片",
+					// Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+	//	uploadImagePb = (ProgressBar) findViewById(R.id.uploadImagePb);
+	//	uploadImagePb.setVisibility(View.GONE);
+	}
+
+	public boolean canSubmit(List<HashMap<String, Object>> imageItem) {
+
+		boolean isFinsh = true;
+		List<String> data1 = new ArrayList<String>();
+		for (HashMap<String, Object> i : imageItem) {
+
+			if (!i.get("itemText").toString().equals("index"))
+				data1.add(i.get("itemText").toString());
+			if (i.get("itemText").toString().equals("")) {
+				isFinsh = false;
+				
+				break;
+			}
+		}
+		if (isFinsh) {
+			data.clear();
+			data.addAll(data1);
+		}
+		return isFinsh;
+
+	}
+
+}

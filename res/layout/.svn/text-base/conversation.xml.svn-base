@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@color/black" >
+
+        <TextView
+            android:id="@+id/name_title"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:textColor="@color/white" />
+
+        <!-- android:cacheColorHint="#00000000"简单的列表显示 -->
+
+    </LinearLayout>
+    
+    <TextView
+            android:id="@+id/backtext"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:drawableLeft="@drawable/rc_bar_back"
+            android:text="返回"
+            android:textColor="@color/white" /> 
+    <!-- 会话页面 Fragment -->
+    <fragment
+        android:layout_below="@+id/ll_title"
+        android:id="@+id/talk_window"
+        android:name="io.rong.imkit.fragment.ConversationFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</RelativeLayout>

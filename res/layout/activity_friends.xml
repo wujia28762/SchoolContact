@@ -1,0 +1,91 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent" >
+
+    <com.schoolcontact.widget.XListView
+        android:id="@+id/ll_main_listView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:divider="@null" />
+
+    <RelativeLayout
+        android:id="@+id/ll_title"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/green" >
+
+        <ImageView
+            android:id="@+id/iv_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+             android:layout_centerHorizontal="true"
+            android:layout_above="@+id/tv_choosegroup"
+            android:src="@drawable/a99" />
+        <TextView
+            android:id="@+id/tv_choosegroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="请选择圈子"
+            android:textSize="19sp"
+            android:textColor="@color/white" />
+
+        <ImageView
+            android:id="@+id/iv_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_choosegroup"
+            android:src="@drawable/shuaxin" />
+
+        <ProgressBar
+            android:id="@+id/loadingGrogressBar"
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/login_title"
+            android:gravity="center"
+            android:indeterminate="true"
+            android:indeterminateBehavior="cycle"
+            android:visibility="gone" />
+        <!-- android:cacheColorHint="#00000000"简单的列表显示 -->
+
+        <TextView
+            android:id="@+id/backtext"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="@color/black"
+            android:drawableLeft="@drawable/rc_bar_back"
+            android:gravity="center_vertical"
+            android:text="返回"
+            android:textColor="@color/white" />
+
+        <ImageView
+            android:id="@+id/tv_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/black"
+            android:gravity="center_vertical"
+            android:src="@drawable/circlefriends_photo_image"
+            android:textColor="@color/white" />
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/pb_head"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="80dp"
+        android:indeterminateDrawable="@drawable/image_progress"
+        android:visibility="gone" />
+
+</FrameLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+   <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/green" >
+
+        <TextView
+            android:id="@+id/showimage_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/black"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="查看大图"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/backtext"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="@color/black"
+            android:drawableLeft="@drawable/rc_bar_back"
+            android:gravity="center_vertical"
+            android:text="返回"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/tv_savetext"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:background="@color/black"
+            android:gravity="center_vertical"
+            android:text="保存"
+            android:textColor="@color/white" />
+
+        <ProgressBar
+            android:id="@+id/loadingGrogressBar"
+            style="@android:style/Widget.ProgressBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/showimage_title"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/showimage_title"
+            android:indeterminate="true"
+            android:indeterminateBehavior="cycle" 
+            android:visibility="gone"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.schoolcontact.widget.MyJazzyViewPager
+            android:id="@+id/id_viewPager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#000000" />
+
+
+    </FrameLayout>
+
+</LinearLayout>

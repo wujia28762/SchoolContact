@@ -1,0 +1,968 @@
+package com.schoolcontact.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.tsz.afinal.FinalHttp;
+import net.tsz.afinal.http.AjaxCallBack;
+import net.tsz.afinal.http.AjaxParams;
+import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.schoolcontact.Base.MessageCallback;
+import com.schoolcontact.Base.ScContext;
+import com.schoolcontact.adapter.CommentListViewAdapter;
+import com.schoolcontact.adapter.HeadCommentGridViewAdapter;
+import com.schoolcontact.adapter.MainListViewAdapter;
+import com.schoolcontact.model.CommentInfo;
+import com.schoolcontact.model.DeleteComment;
+import com.schoolcontact.model.DeleteMessage;
+import com.schoolcontact.model.FriendMessageInfo;
+import com.schoolcontact.model.GroupInfo;
+import com.schoolcontact.model.ItemAttachment;
+import com.schoolcontact.model.PublishAgree;
+import com.schoolcontact.model.PublishComment;
+import com.schoolcontact.model.PublishMood;
+import com.schoolcontact.model.ReturnMessage;
+import com.schoolcontact.utils.EventList;
+import com.schoolcontact.utils.ListUtils;
+import com.schoolcontact.utils.StringUtils;
+
+public class GroupService extends BaseService {
+
+	private String url = baseUrl + EventList.groupAjax;
+
+	public void refreshMemoryAndCache(FriendMessageInfo fm, String uid,
+			int action) {
+		if (!ListUtils.isEmpty(sccontext.getMgroupFriendMessageInfo())) {
+			List<FriendMessageInfo> l = sccontext.getMgroupFriendMessageInfo();
+			int index = l.indexOf(fm);
+
+			if (index != -1 && action == EventList.MODIFY) {
+				l.set(index, fm);
+			} else if (index != -1 && action == EventList.REMOVE) {
+				l.remove(index);
+			}
+			saveMyGroupFriendMessageToFile(sccontext.getCurr_user(), l);
+		}
+
+		if (!ListUtils.isEmpty(sccontext.getMyFriendMessageInfo())) {
+			List<FriendMessageInfo> l = sccontext.getMyFriendMessageInfo();
+			int index = l.indexOf(fm);
+			if (index != -1 && action == EventList.MODIFY) {
+				l.set(index, fm);
+			} else if (index != -1 && action == EventList.REMOVE) {
+				l.remove(index);
+			}
+			saveMyFriendMessageToFile(uid, l);
+		}
+
+	}
+
+	public void getOneMessage(final String message_id, final MessageCallback mc) {
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "messView");
+			params.put("message_id", message_id);
+
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.GETONEMESSAGE, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("获取一条消息返回", t);
+
+						FriendMessageInfo rm = objectMapper.readValue(t,
+								FriendMessageInfo.class);
+						if (rm != null) {
+							refreshMemoryAndCache(rm, rm.getUid(),
+									EventList.MODIFY);
+							mc.dealMessage(new ReturnMessage(EventList.SCUESS,
+									"获取一条信息成功！", EventList.GETONEMESSAGE, rm));
+						} else {
+							mc.dealMessage(new ReturnMessage("0", "没有更新",
+									EventList.GETONEMESSAGE, null));
+						}
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	public boolean append(List<FriendMessageInfo> cache,
+			List<FriendMessageInfo> rm, boolean Direction) {
+		// int index = -2;
+		if (!ListUtils.isEmpty(cache) && !ListUtils.isEmpty(rm)) {
+
+			/*if (Long.valueOf(rm.get(rm.size() - 1).getKey_id()) > Long
+					.valueOf(cache.get(0).getKey_id())) {
+				for (int i = rm.size() - 1; i >= 0; i--)
+					cache.add(0, rm.get(i));
+			} else if (Long.valueOf(rm.get(0).getKey_id()) < Long.valueOf(cache
+					.get(cache.size() - 1).getKey_id())) {
+				for (int i = 0; i < rm.size(); i++)
+					cache.add(rm.get(i));
+
+			}*/
+			if (Direction) {
+				for (int i = rm.size() - 1; i >= 0; i--)
+					cache.add(0, rm.get(i));
+			} else {
+				for (int i = 0; i < rm.size(); i++)
+					cache.add(rm.get(i));
+			}
+		} else if (ListUtils.isEmpty(cache) && !ListUtils.isEmpty(rm)) {
+			return false;
+		}
+		return true;
+	}
+
+	public void showData(List<FriendMessageInfo> py) {
+		if (py != null && py.size() > 0) {
+			for (FriendMessageInfo friendMessageInfo : py) {
+				System.out.println(friendMessageInfo.getKey_id());
+			}
+		}
+	}
+
+	public void getSBMessageBody(final String uid, String head,
+			final String tail, final MessageCallback mc,final boolean Direction) {
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			String me = "0";
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "album");
+			params.put("uid", uid);
+			if (uid.equals(sccontext.getUi().getUsertradeid()))
+				me = "1";
+			params.put("me", me);
+			params.put("page_count", EventList.PAGE_COUNT);
+			params.put("tail", tail);
+			params.put("head", head);
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			// params.put("group_id", sccontext.getCurr_group());
+
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.LOOKSBMESSAGE, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("获取某人消息列表返回", t);
+						// List<FriendMessageInfo> li;
+						JavaType type = objectMapper.getTypeFactory()
+								.constructParametricType(List.class,
+										FriendMessageInfo.class);
+						List<FriendMessageInfo> rm = objectMapper.readValue(t,
+								type);
+						if (!ListUtils.isEmpty(rm)) {
+							if (!append(sccontext.getMyFriendMessageInfo(), rm,Direction)){
+								sccontext.setMyFriendMessageInfo(rm);
+							}
+							saveMyFriendMessageToFile(uid,
+									sccontext.getMyFriendMessageInfo());
+
+							mc.dealMessage(new ReturnMessage(EventList.SCUESS,
+									"获取成功！", EventList.LOOKSBMESSAGE, rm));
+						} else {
+							mc.dealMessage(new ReturnMessage("0", "没有更新",
+									EventList.LOOKSBMESSAGE, rm));
+						}
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 保存近40条班级信息
+	 * 
+	 * @description
+	 */
+	@Deprecated
+	public void saveFriendMessage(String CacheKey, List<FriendMessageInfo> py) {
+		// List<FriendMessageInfo> fi = sccontext.getMgroupFriendMessageInfo();
+		if (py.size() > 40)
+			py.subList(0, 40);
+		String t = "fail";
+		try {
+			System.out.println("存储前的size" + py.size());
+			for (FriendMessageInfo friendMessageInfo : py) {
+				System.out.println(friendMessageInfo.getKey_id());
+			}
+			t = objectMapper.writeValueAsString(py);
+			Log.i("保存近40条班级圈信息", t);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		sccontext.getmPreferences().edit()
+				.putString(CacheKey, StringUtils.enCorder(t)).commit();
+	}
+
+	public void saveMyGroupFriendMessageToFile(String CacheKey,
+			List<FriendMessageInfo> py) {
+		// List<FriendMessageInfo> fi = sccontext.getMgroupFriendMessageInfo();
+		if (py.size() > EventList.CACHE_COUNT)
+			py.subList(py.size() - EventList.CACHE_COUNT, py.size());
+		String t = "fail";
+		try {
+
+			t = objectMapper.writeValueAsString(py);
+			// Log.i("保存的信息", t);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		sccontext
+				.getmPreferences()
+				.edit()
+				.putString("usermessagelist_" + CacheKey,
+						StringUtils.enCorder(t)).commit();
+	}
+
+	public void saveMyFriendMessageToFile(String CacheKey,
+			List<FriendMessageInfo> py) {
+		// List<FriendMessageInfo> fi = sccontext.getMgroupFriendMessageInfo();
+		if (py.size() > EventList.CACHE_COUNT)
+			py.subList(py.size() - EventList.CACHE_COUNT, py.size());
+		String t = "fail";
+		try {
+			for (FriendMessageInfo friendMessageInfo : py) {
+				System.out.println(friendMessageInfo.getKey_id());
+			}
+			t = objectMapper.writeValueAsString(py);
+			Log.i("保存近40条班级圈信息", t);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		sccontext
+				.getmPreferences()
+				.edit()
+				.putString("usersbmessagelist_" + CacheKey,
+						StringUtils.enCorder(t)).commit();
+	}
+
+	public List<FriendMessageInfo> findMyFriendMessageFromFile(String CacheKey) {
+		// List<FriendMessageInfo> fi = sccontext.getMgroupFriendMessageInfo();
+		String cache = sccontext.getmPreferences().getString(
+				"usersbmessagelist_" + CacheKey, "");
+		if ((!cache.equals("")) && (!cache.equals("[]"))) {
+			JavaType type = objectMapper.getTypeFactory()
+					.constructParametricType(List.class,
+							FriendMessageInfo.class);
+			try {
+				List<FriendMessageInfo> rm = objectMapper
+						.readValue(cache, type);
+				return rm;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+		return null;
+	}
+
+	public List<FriendMessageInfo> findMyGroupFriendMessageFromFile(
+			String CacheKey) {
+		// List<FriendMessageInfo> fi = sccontext.getMgroupFriendMessageInfo();
+		String cache = sccontext.getmPreferences().getString(
+				"usermessagelist_" + CacheKey, "");
+		if ((!cache.equals("")) && (!cache.equals("[]"))) {
+			JavaType type = objectMapper.getTypeFactory()
+					.constructParametricType(List.class,
+							FriendMessageInfo.class);
+			try {
+				List<FriendMessageInfo> rm = objectMapper
+						.readValue(cache, type);
+				return rm;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+		return null;
+	}
+
+	public List<FriendMessageInfo> getCacheMessage(final String cache) {
+		String t = StringUtils.deCorder(cache);
+		// List<GroupInfo> li;
+		System.out.println("获取缓存成功\n" + t);
+		try {
+			JavaType type = objectMapper.getTypeFactory()
+					.constructParametricType(List.class,
+							FriendMessageInfo.class);
+			List<FriendMessageInfo> rm = objectMapper.readValue(t, type);
+			// ScContext.getInstance().setmFriendMessageInfo(rm);
+			// mc.dealMessage(new ReturnMessage(EventList.SCUESS, "获取成功！",
+			// EventList.LOOKMESSAGE, rm));
+			return rm;
+
+		} catch (Exception e) {
+			System.out.println("获取缓存错误");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public void getAllMessageBody(final String head, final String tail, final boolean Direction,
+			final MessageCallback mc) {
+		if (sccontext.getUi() != null && sccontext.getDisplayGroupId() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			// String me = "0";
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "message");
+			params.put("uid", sccontext.getUi().getUsertradeid());
+
+			params.put("page_count", EventList.PAGE_COUNT);
+			params.put("head", head);
+			params.put("tail", tail);
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			params.put("group_id", sccontext.getDisplayGroupId());
+			
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.LOOKMESSAGE, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("获取所有消息列表返回", t);
+						// List<FriendMessageInfo> li;
+						JavaType type = objectMapper.getTypeFactory()
+								.constructParametricType(List.class,
+										FriendMessageInfo.class);
+						List<FriendMessageInfo> rm = objectMapper.readValue(t,
+								type);
+						if (!ListUtils.isEmpty(rm)) {
+							if (!append(sccontext.getMgroupFriendMessageInfo(),rm,Direction)){
+								sccontext.setMgroupFriendMessageInfo(rm);
+							}
+							saveMyGroupFriendMessageToFile(
+									sccontext.getCurr_user(),
+									sccontext.getMgroupFriendMessageInfo());
+							mc.dealMessage(new ReturnMessage(EventList.SCUESS,
+									"获取成功！", EventList.LOOKMESSAGE, rm));
+						} else {
+							if(Direction){
+								mc.dealMessage(new ReturnMessage("0", "没有消息",
+									EventList.LOOKMESSAGE, rm));
+							}else{
+								mc.dealMessage(new ReturnMessage("0", "没有消息",
+										EventList.LOOKMESSAGE, rm));
+							}
+						}
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 获取当前用户当前圈子的所有信息
+	 * 
+	 * 
+	 * @param Auto
+	 *            为true 强制刷新 为false可以获取缓存
+	 * @param mc
+	 *            回调引用
+	 * @param direction
+	 *            更新方向 真为刷最新 假为获取历史
+	 * @description
+	 */
+	public void getAllMessageList(final MessageCallback mc, boolean Auto,
+			boolean Direction) {
+		String head = "";
+		String tail = "";
+		// if (sccontext.getCurr_user() != null)
+		// cache = sccontext.getmPreferences().getString(
+		// "usermessagelist_" + sccontext.getCurr_user(), "");
+		// // System.out.println("获取的错误缓存！！" + cache);
+		if (Auto) {// 第一次刷新 无限制
+
+			head = "0";
+			tail = "-1";
+			getAllMessageBody(head, tail, Direction, mc);
+		} else if (!Auto && Direction) // 不是第一次
+		// 但推送有更新，直接获取
+		{
+			List<FriendMessageInfo> cache = sccontext
+					.getMgroupFriendMessageInfo();
+			if (!ListUtils.isEmpty(cache)) {
+				FriendMessageInfo fi = cache.get(0);
+				head = fi.getKey_id();
+				tail = "-1";
+				getAllMessageBody(head, tail, Direction, mc);
+			}else {
+				mc.dealMessage(new ReturnMessage(EventList.SCUESS, "没有消息",
+						EventList.LOOKMESSAGE, null));
+			}
+
+		} else if (!Auto && !Direction) {
+			List<FriendMessageInfo> cacheList = sccontext
+					.getMgroupFriendMessageInfo();
+			if (!ListUtils.isEmpty(cacheList)) {
+				FriendMessageInfo fi = cacheList.get(cacheList.size() - 1);
+				head = "-1";
+				tail = fi.getKey_id();
+				getAllMessageBody(head, tail, Direction, mc);
+			}else {
+				mc.dealMessage(new ReturnMessage(EventList.SCUESS, "没有消息",
+						EventList.LOOKMESSAGE, null));
+			}
+			
+		} else {
+			mc.dealMessage(new ReturnMessage(EventList.SCUESS, "出现了未处理的情况！",
+					EventList.LOOKMESSAGE, null));
+		}
+	}
+
+	/**
+	 * 获取某人消息列表
+	 * 
+	 * @param tail
+	 * @param mc
+	 * @param uid
+	 * @description
+	 */
+	public void getSBMessageList(final MessageCallback mc, final String uid,
+			boolean Auto, boolean Direction) {
+		String head = "";
+		String tail = "";
+		// if (sccontext.getCurr_user() != null)
+		// cache = sccontext.getmPreferences().getString(
+		// "usermessagelist_" + sccontext.getCurr_user(), "");
+		// // System.out.println("获取的错误缓存！！" + cache);
+		if (Auto) {// 第一次刷新 无限制
+
+			
+			head = "0";
+			tail = "-1";
+			getSBMessageBody(uid, head, tail, mc,Direction);
+		} else if (!Auto && Direction) // 不是第一次
+		// 但推送有更新，直接获取
+		{
+			List<FriendMessageInfo> cache = sccontext.getMyFriendMessageInfo();
+			if (!ListUtils.isEmpty(cache)) {
+				FriendMessageInfo fi = cache.get(0);
+				head = fi.getKey_id();
+				tail = "-1";
+				getSBMessageBody(uid, head, tail, mc,Direction);
+			}
+
+		} else if (!Auto && !Direction) {
+			List<FriendMessageInfo> cacheList = sccontext
+					.getMyFriendMessageInfo();
+			if (!ListUtils.isEmpty(cacheList)) {
+				FriendMessageInfo fi = cacheList.get(cacheList.size() - 1);
+				head = "-1";
+				tail = fi.getKey_id();
+				getSBMessageBody(uid, head, tail, mc,Direction);
+			}
+			else
+			{
+				mc.dealMessage(new ReturnMessage(EventList.SCUESS, "出现了未处理的情况！",
+						EventList.LOOKSBMESSAGE, null));
+			}
+		} else {
+			mc.dealMessage(new ReturnMessage(EventList.SCUESS, "出现了未处理的情况！",
+					EventList.LOOKSBMESSAGE, null));
+		}
+
+	}
+
+	/**
+	 * 删除评论
+	 * 
+	 * @param commentInfo
+	 * @param mc
+	 * @description
+	 */
+	public void DeleteComment(final String message_id, final String uid,
+			final CommentListViewAdapter cl, final CommentInfo commentInfo,
+			final MessageCallback mc) {
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "commentDelete");
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			// params.put("to_uid", to_uid);
+			params.put("comment_id", commentInfo.getKey_id());
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			// params.put("group_id", sccontext.getCurr_group());
+
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.DELETECOMMENT, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("删除评论返回", t);
+						DeleteComment rm = objectMapper.readValue(t,
+								DeleteComment.class);
+						if (rm.getFlag().equals("y")) {
+							cl.getmList().remove(commentInfo);
+
+							getOneMessage(message_id, mc);
+
+						}
+						mc.dealMessage(new ReturnMessage(rm.getFlag(), rm
+								.getMess(), EventList.DELETECOMMENT, rm));
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 删除某个发表过的消息
+	 * 
+	 * @param friendMessageInfo
+	 * @param mc
+	 * @description
+	 */
+	public void DeleteMessage(final MainListViewAdapter cl,
+			final FriendMessageInfo friendMessageInfo, final MessageCallback mc) {
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "messDelete");
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			// params.put("to_uid", to_uid);
+			params.put("message_id", friendMessageInfo.getKey_id());
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			// params.put("group_id", sccontext.getCurr_group());
+
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.DELETEMESSAGE, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("删除消息返回", t);
+						DeleteMessage rm = objectMapper.readValue(t,
+								DeleteMessage.class);
+
+						if (rm.getFlag().equals("y")) {
+							cl.getData().remove(friendMessageInfo);
+							refreshMemoryAndCache(friendMessageInfo,
+									friendMessageInfo.getUid(),
+									EventList.REMOVE);
+						}
+						mc.dealMessage(new ReturnMessage(rm.getFlag(), rm
+								.getMess(), EventList.DELETEMESSAGE, rm));
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 点赞消息
+	 * 
+	 * @param friendMessageInfo
+	 * @param mc
+	 * @description
+	 */
+	public void AgreeMessage(final HeadCommentGridViewAdapter cl,
+			final FriendMessageInfo friendMessageInfo, final int arg0,
+			final MessageCallback mc) {
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "thumbup");
+			params.put("uid", sccontext.getUi().getUsertradeid());
+			// params.put("to_uid", to_uid);
+			params.put("message_id", friendMessageInfo.getKey_id());
+			// params.put("uid", sccontext.getUi().getUsertradeid());
+			params.put("group_id", sccontext.getCurr_group());
+
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.PUBLISHAGREE, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("发布赞返回", t);
+						PublishAgree rm = objectMapper.readValue(t,
+								PublishAgree.class);
+//						FriendMessageInfo fi1 = sccontext
+//								.getMgroupFriendMessageInfo().get(arg0);
+
+						if (rm.getFlag().equals("y")
+								&& friendMessageInfo.getThumbs().contains(
+										sccontext.getUi().getUsername())) {
+
+							friendMessageInfo.getThumbs().remove(
+									sccontext.getUi().getUsername());
+							getOneMessage(friendMessageInfo.getKey_id(), mc);
+
+						} else if (rm.getFlag().equals("y")
+								&& !friendMessageInfo.getThumbs().contains(
+										sccontext.getUi().getUsername())) {
+							friendMessageInfo.getThumbs()
+									.add(sccontext.getUi().getUsername());
+							getOneMessage(friendMessageInfo.getKey_id(), mc);
+
+						}
+
+						mc.dealMessage(new ReturnMessage(rm.getFlag(), rm
+								.getMess(), EventList.PUBLISHAGREE, rm));
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 评论消息
+	 * 
+	 * @param to_uid
+	 * @param friendMessageInfo
+	 * @param cl
+	 * @param content
+	 * @param mc
+	 * @description
+	 */
+	public void commentMessage(final CommentInfo ci,
+			final FriendMessageInfo friendMessageInfo,
+			final CommentListViewAdapter cl, final MessageCallback mc) {
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			// System.out.println(url);
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408002");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "commentPost");
+			params.put("content", ci.getContent());
+			params.put("to_uid", ci.getTo_uid());
+			params.put("message_id", friendMessageInfo.getKey_id());
+			params.put("uid", sccontext.getUi().getUsertradeid());
+			params.put("group_id", sccontext.getCurr_group());
+
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.PUBLISHCOMMENT, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("发布消息信息", t);
+						PublishComment rm = objectMapper.readValue(t,
+								PublishComment.class);
+
+						if (rm.getFlag().equals("y")) {
+							ci.setComment_time(rm.getComment_time());
+							ci.setKeyid(rm.getKey_id());
+							// friendMessageInfo.getComments().add(ci);
+							cl.add(ci);
+							// cl.notifyDataSetChanged();
+						}
+						getOneMessage(friendMessageInfo.getKey_id(), mc);
+
+						mc.dealMessage(new ReturnMessage(rm.getFlag(), rm
+								.getMess(), EventList.PUBLISHCOMMENT, null));
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 发布消息
+	 * 
+	 * @param ImageUrlList
+	 * @param content
+	 * @param mc
+	 * @description
+	 */
+	public void publishGroup(final List<String> ImageUrlList,
+			final String content, final MessageCallback mc) {
+		String urls = "";
+		if (sccontext.getUi() != null && sccontext.getCurr_group() != null) {
+			if (ImageUrlList!=null&&ImageUrlList.size() > 0)
+				for (String itemAttachment : ImageUrlList) {
+					if (!urls.equals(""))
+						urls += "," + itemAttachment;
+					else
+						urls += itemAttachment;
+				}
+			System.out.println("!!!!@@@" + urls);
+			final String urls1 = urls;
+
+			// Log.i("登录账号密码", username + "       " + password);
+			AjaxParams params = new AjaxParams();
+			params.put("actor", EventList.ACTOR_GROUP);
+			params.put("event", "408001");
+			params.put("sid", sccontext.getUi().getSid());
+			params.put("data", "messPost");
+			params.put("content", content);
+			params.put("files", urls);
+			params.put("private_flag", "0");
+			params.put("uid", sccontext.getUi().getUsertradeid());
+			params.put("group_id", sccontext.getCurr_group());
+			if (ImageUrlList.size() > 0)
+				params.put("type", "2");
+			else
+				params.put("type", "1");
+			System.out.println(FinalHttp.getUrlWithQueryString(url, params));
+			fh.post(url, params, new AjaxCallBack<String>() {
+
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					// super.onFailure(t, errorNo, strMsg);
+					mc.dealMessage(new ReturnMessage("error", "请求超时！",
+							EventList.SENDMOOD, null));
+				}
+
+				@Override
+				public void onSuccess(String t) {
+					try {
+						Log.v("发布消息信息", t);
+						PublishMood rm = objectMapper.readValue(t,
+								PublishMood.class);
+
+						if (rm.getFlag().equals("y")) {
+							final FriendMessageInfo fi = new FriendMessageInfo();
+							fi.setComments(new ArrayList<CommentInfo>());
+							fi.setContent(content);
+							fi.setFile_urls(urls1);
+							fi.setKey_id(rm.getKey_id());
+							fi.setPortraitUri(sccontext.getUi()
+									.getIsportraituri());
+							fi.setSend_time(rm.getSend_time());
+							fi.setThumbs(new ArrayList<String>());
+							fi.setUid(sccontext.getUi().getUsertradeid());
+							fi.setUname(sccontext.getUi().getUsername());
+							List<FriendMessageInfo> ls = new ArrayList<FriendMessageInfo>();
+							ls.add(fi);
+							if (!append(sccontext.getMgroupFriendMessageInfo(), ls,true)){
+								sccontext.setMgroupFriendMessageInfo(ls);
+							}
+							saveMyGroupFriendMessageToFile(
+									sccontext.getCurr_user(),
+									sccontext.getMgroupFriendMessageInfo());
+
+						}
+
+						mc.dealMessage(new ReturnMessage(rm.getFlag(), rm
+								.getMess(), EventList.SENDMOOD, rm));
+
+					} catch (Exception e) {
+						// System.out.println("登录前请求解析异常");
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+		}
+	}
+
+	/**
+	 * 获取某人的圈子列表
+	 * 
+	 * @param mc
+	 * @param Auto
+	 * @description
+	 */
+	public void getGroup(final MessageCallback mc, boolean Auto, final String flag) {
+		String cache = "";
+		if (sccontext.getCurr_user() != null)
+			cache = sccontext.getmPreferences().getString(
+					"usergrouplist_" + sccontext.getCurr_user(), "");
+		if (cache.equals("") || Auto) {
+			if (sccontext.getUi() != null) {
+				AjaxParams params = new AjaxParams();
+				params.put("actor", EventList.ACTOR_GROUP);
+				params.put("event", "408001");
+				params.put("sid", sccontext.getUi().getSid());
+				params.put("data", "groups");
+				params.put("uid", sccontext.getUi().getUsertradeid());
+				params.put("flag", flag);
+				System.out
+						.println(FinalHttp.getUrlWithQueryString(url, params));
+				fh.post(url, params, new AjaxCallBack<String>() {
+
+					@Override
+					public void onFailure(Throwable t, int errorNo,
+							String strMsg) {
+						// super.onFailure(t, errorNo, strMsg);
+						mc.dealMessage(new ReturnMessage("error", "请求超时！",
+								EventList.GETGROUPINFO, null));
+					}
+
+					@Override
+					public void onSuccess(String t) {
+						try {
+							Log.v("获取到了group信息", t);
+							JavaType type = objectMapper.getTypeFactory()
+									.constructParametricType(List.class,
+											GroupInfo.class);
+							List<GroupInfo> gis = objectMapper.readValue(t,
+									type);
+
+							if (gis != null && gis.size() != 0) {
+								sccontext
+										.getmPreferences()
+										.edit()
+										.putString(
+												"usergrouplist_"
+														+ sccontext
+																.getCurr_user(),
+												StringUtils.enCorder(t))
+										.commit();
+							}
+							if(flag.equals("a")){
+								ScContext.getInstance().setmGroupInfos(gis);
+							}else if(flag.equals("n")){
+								ScContext.getInstance().setTechCurrGroupInfos(gis);
+							}else if(flag.equals("y")){
+								ScContext.getInstance().setTechHisGroupInfos(gis);
+							}
+							// Log.v("获取到了group信息", gis);
+							mc.dealMessage(new ReturnMessage("0", "网络获取成功！",
+									EventList.GETGROUPINFO, gis));
+
+						} catch (Exception e) {
+							// System.out.println("登录前请求解析异常");
+							e.printStackTrace();
+						}
+					}
+
+				});
+			}
+		} else {
+			String t = StringUtils.deCorder(cache);
+			List<GroupInfo> li;
+			System.out.println("获取好友缓存成功\n" + t);
+			try {
+				JavaType type = objectMapper.getTypeFactory()
+						.constructParametricType(List.class, GroupInfo.class);
+				li = objectMapper.readValue(t, type);
+				ScContext.getInstance().setmGroupInfos(li);
+				mc.dealMessage(new ReturnMessage(EventList.SCUESS,
+						"本地获取圈分组成功！", EventList.GETGROUPINFO, li));
+			} catch (Exception e) {
+				System.out.println("获取圈分组错误");
+				e.printStackTrace();
+			}
+
+		}
+	}
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <Button
+        android:id="@+id/announcement_bt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/announcement_string"
+        android:background="#E0E0E0" 
+        android:layout_marginTop="2dp"/>
+    
+    <Button
+        android:id="@+id/task_bt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/task_string" 
+        android:background="#E0E0E0"
+        android:layout_marginTop="2dp"/>
+
+    <Button
+        android:id="@+id/cancel_bt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:background="#E0E0E0" 
+        android:layout_marginTop="2dp"/>
+
+</LinearLayout>

@@ -1,0 +1,76 @@
+10
+
+dir
+227
+svn://eon/client/SchoolContact/res
+svn://eon/client
+
+
+
+2015-09-16T11:57:55.216750Z
+225
+wujx
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+677a2cab-7dfe-744e-a2d5-b658aa0b732d
+
+values-w360dp
+dir
+
+drawable
+dir
+
+values-w820dp
+dir
+
+drawable-xxhdpi
+dir
+
+anim
+dir
+
+drawable-xhdpi
+dir
+
+values
+dir
+
+drawable-hdpi
+dir
+
+menu
+dir
+
+values-v11
+dir
+
+drawable-ldpi
+dir
+
+values-v14
+dir
+
+drawable-mdpi
+dir
+
+values-w320dp
+dir
+
+layout
+dir
+
+color
+dir
+

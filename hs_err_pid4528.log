@@ -1,0 +1,133 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  Internal Error (javaClasses.cpp:126), pid=4528, tid=5700
+#  fatal error: Invalid layout of preloaded class
+#
+# JRE version:  (8.0_25-b18) (build )
+# Java VM: Java HotSpot(TM) Client VM (25.25-b02 mixed mode windows-x86 )
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0110c800):  JavaThread "Unknown thread" [_thread_in_vm, id=5700, stack(0x00fe0000,0x01030000)]
+
+Stack: [0x00fe0000,0x01030000],  sp=0x0102f84c,  free space=318k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x19796b]
+V  [jvm.dll+0x1908e6]
+V  [jvm.dll+0x3b4e9]
+V  [jvm.dll+0x3b69e]
+V  [jvm.dll+0x4a063]
+V  [jvm.dll+0x9dc8e]
+V  [jvm.dll+0x9df52]
+V  [jvm.dll+0x145a01]
+V  [jvm.dll+0x169ab8]
+V  [jvm.dll+0xdaea1]
+C  [javaw.exe+0x13e4]
+C  [javaw.exe+0x1eb7]
+C  [javaw.exe+0xaba1]
+C  [javaw.exe+0xac2b]
+C  [kernel32.dll+0x44911]
+C  [ntdll.dll+0x3e1c6]
+C  [ntdll.dll+0x3e199]
+C  0x00000000
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x0110c800 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=5700, stack(0x00fe0000,0x01030000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (10 events):
+Event: 0.687 loading class java/lang/CharSequence done
+Event: 0.687 loading class java/lang/String done
+Event: 0.687 loading class java/lang/Class
+Event: 0.687 loading class java/lang/reflect/AnnotatedElement
+Event: 0.687 loading class java/lang/reflect/AnnotatedElement done
+Event: 0.687 loading class java/lang/reflect/GenericDeclaration
+Event: 0.687 loading class java/lang/reflect/GenericDeclaration done
+Event: 0.687 loading class java/lang/reflect/Type
+Event: 0.687 loading class java/lang/reflect/Type done
+Event: 0.687 loading class java/lang/Class done
+
+
+Dynamic libraries:
+0x013d0000 - 0x01400000 	C:\Program Files\Java\jre1.8.0_25\bin\javaw.exe
+0x77a50000 - 0x77b78000 	C:\Windows\system32\ntdll.dll
+0x76e30000 - 0x76f0b000 	C:\Windows\system32\kernel32.dll
+0x77ba0000 - 0x77c66000 	C:\Windows\system32\ADVAPI32.dll
+0x77360000 - 0x77422000 	C:\Windows\system32\RPCRT4.dll
+0x772c0000 - 0x7735d000 	C:\Windows\system32\USER32.dll
+0x76270000 - 0x762bb000 	C:\Windows\system32\GDI32.dll
+0x74e30000 - 0x74fce000 	C:\Windows\WinSxS\x86_microsoft.windows.common-controls_6595b64144ccf1df_6.0.6001.18523_none_5cdd65e20837faf2\COMCTL32.dll
+0x76f60000 - 0x7700a000 	C:\Windows\system32\msvcrt.dll
+0x762c0000 - 0x76318000 	C:\Windows\system32\SHLWAPI.dll
+0x761d0000 - 0x761ee000 	C:\Windows\system32\IMM32.DLL
+0x76100000 - 0x761c8000 	C:\Windows\system32\MSCTF.dll
+0x77b80000 - 0x77b89000 	C:\Windows\system32\LPK.DLL
+0x779d0000 - 0x77a4d000 	C:\Windows\system32\USP10.dll
+0x5db40000 - 0x5dbff000 	C:\Program Files\Java\jre1.8.0_25\bin\msvcr100.dll
+0x61ae0000 - 0x61e84000 	C:\Program Files\Java\jre1.8.0_25\bin\client\jvm.dll
+0x70920000 - 0x70927000 	C:\Windows\system32\WSOCK32.dll
+0x77c80000 - 0x77cad000 	C:\Windows\system32\WS2_32.dll
+0x77b90000 - 0x77b96000 	C:\Windows\system32\NSI.dll
+0x74bc0000 - 0x74bf2000 	C:\Windows\system32\WINMM.dll
+0x775c0000 - 0x77704000 	C:\Windows\system32\ole32.dll
+0x77710000 - 0x7779d000 	C:\Windows\system32\OLEAUT32.dll
+0x74b80000 - 0x74bb9000 	C:\Windows\system32\OLEACC.dll
+0x760f0000 - 0x760f7000 	C:\Windows\system32\PSAPI.DLL
+0x74530000 - 0x7453c000 	C:\Program Files\Java\jre1.8.0_25\bin\verify.dll
+0x67720000 - 0x67741000 	C:\Program Files\Java\jre1.8.0_25\bin\java.dll
+0x6ad30000 - 0x6ad43000 	C:\Program Files\Java\jre1.8.0_25\bin\zip.dll
+0x70ce0000 - 0x70dbc000 	C:\Windows\system32\dbghelp.dll
+
+VM Arguments:
+jvm_args: -Dfile.encoding=GBK -Xbootclasspath:D:\adt-bundle-windows-x86-20140702\sdk\platforms\android-19\android.jar 
+java_command: com.schoolcontact.utils.MD5_32Bit
+java_class_path (initial): D:\Android\workspace\SchoolContact\bin\classes;D:\Android\workspace\SchoolContact\libs\jackson-databind-2.2.3.jar;D:\Android\workspace\SchoolContact\libs\xUtils-2.6.14.jar;D:\Android\workspace\SchoolContact\libs\afinal_0.5.1_bin.jar;D:\Android\workspace\appcompat_v7\libs\android-support-v4.jar;D:\Android\workspace\SchoolContact\libs\jackson-core-2.2.3.jar;D:\Android\workspace\SchoolContact\libs\Rong_IMKit_v1_4_3.jar;D:\Android\workspace\appcompat_v7\libs\android-support-v7-appcompat.jar;D:\Android\workspace\SchoolContact\libs\jackson-annotations-2.2.3.jar;D:\Android\workspace\appcompat_v7\bin\appcompat_v7.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk1.8.0_25
+CLASSPATH=C:\Program Files\Java\jdk1.8.0_25
+PATH=C:/Program Files/Java/jre1.8.0_25/bin/client;C:/Program Files/Java/jre1.8.0_25/bin;C:/Program Files/Java/jre1.8.0_25/lib/i386;C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Common Files\Ulead Systems\MPEG;D:\oracle\product\10.2.0\db_1\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files\ActivIdentity\ActivClient\;C:\Program Files\Java\jdk1.6.0_21\bin;C:\Program Files\Common Files\Thunder Network\KanKan\Codecs;C:\strawberry\c\bin;C:\strawberry\perl\bin;C:\masm;C:\Program Files\Microsoft SQL Server\80\Tools\BINN;C:\Program Files\Java\jdk1.6.0_21\bin;C:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Users\Star\Desktop\Thing;F:\Program Files\TortoiseSVN\bin;F:\Program Files\SSH Communications Security\SSH Secure Shell;D:\adt-bundle-windows-x86-20140702\eclipse;
+USERNAME=Star
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 10, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows Vista Build 6001 Service Pack 1
+
+CPU:total 2 (2 cores per cpu, 1 threads per core) family 6 model 23 stepping 10, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, tsc
+
+Memory: 4k page, physical 3139032k(1097100k free), swap 6485864k(3029600k free)
+
+vm_info: Java HotSpot(TM) Client VM (25.25-b02) for windows-x86 JRE (1.8.0_25-b18), built on Oct  7 2014 14:31:05 by "java_re" with MS VC++ 10.0 (VS2010)
+
+time: Sat May 09 13:19:25 2015
+elapsed time: 0 seconds (0d 0h 0m 0s)
+

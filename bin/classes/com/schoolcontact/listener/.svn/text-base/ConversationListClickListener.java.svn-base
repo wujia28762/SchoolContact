@@ -1,0 +1,103 @@
+package com.schoolcontact.listener;
+
+import io.rong.imkit.RongIM.ConversationListBehaviorListener;
+import io.rong.imkit.model.UIConversation;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Conversation.ConversationType;
+import io.rong.imlib.model.MessageContent;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+
+import com.schoolcontact.view.NotificationListDisplayActivity;
+
+public class ConversationListClickListener implements ConversationListBehaviorListener{
+
+	@Override
+	public boolean onConversationClick(Context arg0, View arg1,
+			UIConversation arg2) {
+		String targetId = arg2.getConversationTargetId();
+		ConversationType conversationType = arg2.getConversationType();
+		int latestMessageId = arg2.getLatestMessageId();
+		Conversation conversation = RongIMClient.getInstance().getConversation(conversationType, targetId);
+		
+		/*final NoticeMessage noticeMessage = new NoticeMessage("", "id","haha", "", null);
+		RongIMClient.getInstance().sendMessage(conversationType, "id", noticeMessage, "", 
+
+				new SendMessageCallback(){
+
+					@Override
+					public void onError(Integer arg0, ErrorCode arg1) {
+						int a = 0;
+						a++;
+						Log.i("",""+a);
+					}
+
+					@Override
+					public void onSuccess(Integer arg0) {
+						int a = 0;
+						a++;
+						Log.i("",""+a);
+						
+					}
+
+			
+		});*/
+		
+		/*for(int i=0;i<Integer.MAX_VALUE;i++){
+			MessageContent messageContent;
+			if(i==0){
+				messageContent = conversation.getLatestMessage();
+			}else{
+				List<Message> historyMessageList = RongIMClient.getInstance().getHistoryMessages(conversationType, targetId, latestMessageId, i);
+				if(historyMessageList == null){
+					continue;
+				}
+				messageContent = historyMessageList.get(0).getContent();
+			}
+			String messageDescString = messageContent.getClass().getName();
+			if(messageDescString.contains("TextMessage")){
+				TextMessage textMessage = (TextMessage) messageContent;
+				String messageContentString = textMessage.getContent();
+				if(messageContentString.contains("【作业】")||messageContentString.contains("【通知】")){
+					Log.i("此会话是", "通知");
+					Intent intent = new Intent(arg0, NotificationListDisplayActivity.class);
+					intent.putExtra("conversationTypeValue", conversationType.getValue());
+					intent.putExtra("targetId", targetId);
+					intent.putExtra("latestMessageId", latestMessageId);
+					arg0.startActivity(intent);
+					return true;
+				}else{
+					Log.i("此会话是", "聊天");
+				}
+				break;
+			}else if(messageDescString.contains("ImageMessage")){
+				Log.i("此内容是", "图片");
+			}
+		}*/
+		//conversation.setUnreadMessageCount(0);
+		MessageContent message = conversation.getLatestMessage();//RongIMClient.getInstance().getLatestMessages(conversationType, targetId, latestMessageId).get(0).getContent();
+		String messageName = conversation.getLatestMessage().getClass().getSimpleName();
+		if(messageName.equals("NotificationMessage")){
+			Log.i("此会话是", "通知");
+			Intent intent = new Intent(arg0, NotificationListDisplayActivity.class);
+			intent.putExtra("conversationTypeValue", conversationType.getValue());
+			intent.putExtra("targetId", targetId);
+			intent.putExtra("latestMessageId", latestMessageId);
+			arg0.startActivity(intent);
+			
+			return true;
+		}else {
+			return false;	
+		}
+	}
+
+	@Override
+	public boolean onConversationLongClick(Context arg0, View arg1,
+			UIConversation arg2) {
+		return false;
+	}
+
+}

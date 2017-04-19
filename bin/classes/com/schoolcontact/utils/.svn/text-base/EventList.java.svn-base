@@ -1,0 +1,124 @@
+package com.schoolcontact.utils;
+
+public class EventList {
+
+	/**
+	 * 
+	 * 
+	 * Base Url 
+	 */
+	public static final String BASEURL = "http://jxt.syhcinfo.com/";//http://58.154.51.211:8080/k12/
+	/**
+	 * @description 请求DATA（用于HTTP请求,DATA 参数）
+	 */
+	public static final int OUTPUTX = 200;
+	
+	public static final int OUTPUTY = 200;
+	
+	/**
+	 * @description 请求DATA（用于HTTP请求,DATA 参数）
+	 */
+	public static final String DATA_GETCONTACTS = "getContacts";
+	
+	public static final String DATA_FEEDBACK = "post";
+	
+	public static final String DATA_REFRESHTOKEN = "refreshToken";
+	
+	public static final String DATA_NOTIFICATIONLIST = "getNoticeContacts";
+	
+	public static final String DATA_NOTIFICATIONSEND = "send";
+	/**
+	 * @description URL 请求后缀
+	 */
+	public static final String userAjax = "user.ajax";
+	public static final String imAjax = "im.ajax";
+	public static final String feedbackAjax = "feedback.ajax";
+	public static final String groupAjax = "group.ajax";
+	
+	
+	/**
+	 * @description  操作成功标识
+	 */
+	public static final String SCUESS = "0";
+	
+	
+	
+	/**
+	 * @description 行为标识（用于信息回调判断何种行为）
+	 */
+	public static final int BEFORELOGIN = 1;
+	public static final int LOGIN = 2;
+	public static final int MODIFYPASSWORD = 3;
+	public static final int LOGOUT = 4;
+	public static final int GETGROUP = 5;
+	public static final int GETCHECKNUM = 6;
+	public static final int SAVENEWPWD = 7;
+	public static final int FEEDBACK = 8;
+	public static final int UPLOADIMG = 9;
+	public static final int REFRESHTOKEN = 10;
+	public static final int SERVERLOGIN = 11;
+	public static final int RESERVERLOGIN = 12;
+	public static final int GETNOTIFICATIONLIST = 13;
+	public static final int ADDATTACHMENT = 14;
+	public static final int NOTIFICATIONSEND = 15;
+	public static final int SENDMOOD = 16;
+	public static final int GETGROUPINFO = 17;
+	public static final int PUBLISHCOMMENT = 18;
+	public static final int PUBLISHAGREE = 19;
+	public static final int DELETEMESSAGE = 20;
+	public static final int DELETECOMMENT = 21;
+	public static final int LOOKMESSAGE = 22;
+	public static final int LOOKSBMESSAGE = 23;
+	public static final int GETONEMESSAGE = 24;
+	public static final int CHOOSEGROUPFINISH = 25;
+	
+	/**
+	 * @description 请求动作（用于HTTP请求,ACTOR 参数）
+	 */
+	public static final String ACTOR_GROUP = "com.eon.k12.ajax.GroupAjax";
+	public static final String ACTOR_USER = "com.eon.platina.ajax.AjaxUser";
+	public static final String ACTOR_IM = "com.eon.im.rongcloud.ajax.RcAjaxServlet";
+	public static final String ACTOR_FEEDBACK = "com.eon.platina.ajax.AjaxFeedback";
+	public static final String ACTOR_REFRESHTOKEN = "com.eon.im.rongcloud.ajax.RcAjaxServlet";
+
+	
+	
+	
+	/**
+	 * @description 设备标识
+	 */
+	public static final String ANDROID = "ama";
+	
+	
+	
+	/**
+	 * @description 事件标识（用于HTTP请求,EVENT 参数）
+	 */
+	public static final String EVENT_BEFORELOGIN = "400000";
+	public static final String EVENT_LOGIN = "401000";
+	public static final String EVENT_MODIFYPASSWORD = "402000";
+	public static final String EVENT_LOGOUT = "403000";
+	public static final String EVENT_GETCHECKNUM = "404000";
+	public static final String EVENT_SAVENEWPWD = "404001";
+	public static final String EVENT_UPLOADIMG = "405000";
+	public static final String EVENT_TOKEN = "406000";
+	public static final String EVENT_GROUP = "407000";
+	public static final String EVENT_NOTIFICATIONSEND = "407001";
+	public static final String EVENT_NOTIFICATIONLIST = "407002";
+
+	
+	
+	/**
+	 * @description 评论可输入字数
+	 */
+	public static final int TOTALNUM = 200;
+	public static final String PAGE_COUNT = "40";
+	public static final int CACHE_COUNT = 100;
+	public static final int REMOVE = 1;
+	public static final int MODIFY = 2;
+	
+	public static final int comPressHeight = 130;
+	public static final int comPressWidth = 130;
+
+	
+}

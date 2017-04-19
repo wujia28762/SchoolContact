@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.schoolcontact.utils.ZoomImageView
+        android:id="@+id/iv_bigimage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/yt"
+        android:visibility="gone" >
+    </com.schoolcontact.utils.ZoomImageView>
+
+    <TextView
+        android:id="@+id/tv_bigimageempty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:drawablePadding="17dp"
+        android:drawableTop="@drawable/ic_empty_list"
+        android:gravity="center"
+        android:text="图片读取中..."
+        android:textColor="#5c5c5c"
+        android:textSize="15dp" />
+
+</RelativeLayout>

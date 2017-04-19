@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    >
+    
+    <RelativeLayout
+        android:id="@+id/notification_list_title"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/black">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="@string/notification_list_string"
+            android:textColor="@color/white" />
+
+    </RelativeLayout>
+    
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/notification_list_title"
+        >
+        
+    <android.support.v4.widget.SwipeRefreshLayout  
+        android:id="@+id/notification_list_swipe"  
+        android:layout_width="match_parent"  
+        android:layout_height="match_parent" >  
+    
+        
+    <ListView 
+       android:id="@+id/notification_list"
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
+       />
+     
+      </android.support.v4.widget.SwipeRefreshLayout>
+      
+     </RelativeLayout>
+      
+    <TextView
+        android:id="@+id/notification_list_empty"
+        
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:drawablePadding="17dp"
+        android:drawableTop="@drawable/ic_empty_list"
+        android:gravity="center"
+        android:text="暂无信息"
+        android:textColor="#5c5c5c"
+        android:textSize="15dp"
+        android:visibility="gone" />
+</RelativeLayout>

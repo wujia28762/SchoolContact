@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@color/green"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/showimage_title"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:gravity="center"
+            android:text="查看大图"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/backtext"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:background="@color/black"
+        android:drawableLeft="@drawable/rc_bar_back"
+        android:gravity="center_vertical"
+        android:text="返回"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/tv_savetext"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:background="@color/black"
+        android:gravity="center_vertical"
+        android:text="保存"
+        android:textColor="@color/white"
+         />
+
+    <fragment
+        android:id="@+id/fg_showimage"
+        android:name="com.schoolcontact.view.ShowBigImageFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ll_title" />
+
+</RelativeLayout>

@@ -1,0 +1,142 @@
+package com.schoolcontact.view;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.RongIMClient.ErrorCode;
+import io.rong.imlib.RongIMClient.ResultCallback;
+import io.rong.imlib.model.Conversation.ConversationType;
+import io.rong.imlib.model.Message;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.school_contact.main.R;
+import com.schoolcontact.adapter.NotificationHistoryMessageAdapter;
+
+public class NotificationListDisplayActivity extends BaseActivity {
+
+	private ConversationType conversationType;
+	private String targetId;
+	private int latestMessageId;
+	private int receiveLastMessageId;//返回数据的最后一条messageId
+	private ListView notificationDisplayListView;
+	private int readMessageLen = 10;// 查询消息的长度
+	private List<Message> historyMessageList;
+	private List<Message> historyMessageListReverse;
+	private NotificationHistoryMessageAdapter notificationHistoryMessageAdapter;
+	private RelativeLayout moreRelativeLayout;
+	private TextView backTextView;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.activity_notification_list_display);
+		onInit();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.more_nofitication:
+			getNotificationListRefresh();
+			break;
+		case R.id.backtext:
+			finish();
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void onInit() {
+		Intent intent = getIntent();
+		latestMessageId = intent.getIntExtra("latestMessageId", 0);
+		targetId = intent.getStringExtra("targetId");
+		int conversationTypeValue = intent.getIntExtra("conversationTypeValue",
+				1);
+		conversationType = ConversationType.setValue(conversationTypeValue);
+		Log.i("intent", "latestMessageId:" + latestMessageId + ";targetId:"
+				+ targetId + ";conversationType:" + conversationType.getName());
+
+		notificationDisplayListView = (ListView) findViewById(R.id.notification_display_listview);
+		
+		moreRelativeLayout = (RelativeLayout) findViewById(R.id.more_nofitication);
+		moreRelativeLayout.setOnClickListener(this);
+		backTextView = (TextView) findViewById(R.id.backtext);
+		backTextView.setOnClickListener(this);
+
+		getNotificationList();
+		
+		
+
+	}
+
+	private void getNotificationList() {
+		RongIMClient.getInstance().getLatestMessages(conversationType,
+				targetId, readMessageLen, new ResultCallback<List<Message>>() {
+
+					@Override
+					public void onError(ErrorCode arg0) {
+
+					}
+
+					@Override
+					public void onSuccess(List<Message> list) {
+						receiveLastMessageId = list.get(0).getMessageId();
+						historyMessageList = list;
+						historyMessageListReverse = new ArrayList<Message>();
+						for(int i=historyMessageList.size()-1;i>=0;i--){
+							historyMessageListReverse.add(historyMessageList.get(i));
+						}
+						historyMessageList = null;
+						notificationHistoryMessageAdapter = new NotificationHistoryMessageAdapter(
+								NotificationListDisplayActivity.this,
+								historyMessageListReverse);
+						notificationDisplayListView
+								.setAdapter(notificationHistoryMessageAdapter);
+					}
+
+				});
+	}
+	
+	private void getNotificationListRefresh() {
+		RongIMClient.getInstance().getHistoryMessages(conversationType,
+				targetId, receiveLastMessageId, readMessageLen, new ResultCallback<List<Message>>() {
+
+					@Override
+					public void onError(ErrorCode arg0) {
+
+					}
+
+					@Override
+					public void onSuccess(List<Message> list) {
+						if(list!=null&&list.size()>0){
+							receiveLastMessageId = list.get(0).getMessageId();
+							historyMessageList = list;
+						}else{
+							Toast.makeText(NotificationListDisplayActivity.this, "没有更多消息了", Toast.LENGTH_SHORT).show();
+							return;
+						}
+//						historyMessageListReverse.clear();
+						for(int i=historyMessageList.size()-1;i>=0;i--){
+							historyMessageListReverse.add(historyMessageList.get(i));
+						}
+						historyMessageList = null;
+						notificationHistoryMessageAdapter.notifyDataSetChanged();
+					}
+
+				});
+		
+	}
+}

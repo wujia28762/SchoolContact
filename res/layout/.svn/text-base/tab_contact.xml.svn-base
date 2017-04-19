@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/white"
+    >
+    <android.support.v4.widget.SwipeRefreshLayout  
+        android:id="@+id/id_swipe_ly"  
+        android:layout_width="match_parent"  
+        android:layout_height="match_parent" >  
+    
+    <com.schoolcontact.widget.PinnedHeaderListView 
+       android:id="@+id/group_list"
+       android:layout_width="fill_parent"
+       android:layout_height="fill_parent"
+       />
+    
+     
+      </android.support.v4.widget.SwipeRefreshLayout>
+      
+    <TextView
+        android:id="@+id/empty"
+        
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:drawablePadding="17dp"
+        android:drawableTop="@drawable/ic_empty_list"
+        android:gravity="center"
+        android:text="暂无信息"
+        android:textColor="#5c5c5c"
+        android:textSize="15dp"
+        android:visibility="gone" />
+</RelativeLayout>

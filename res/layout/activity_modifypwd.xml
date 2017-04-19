@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eee" >
+
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal" 
+        android:background="@color/green">
+
+        
+
+        
+
+        <TextView
+            android:id="@+id/login_title"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:background="@color/black"
+            android:gravity="center"
+            android:text="修改密码"
+            android:textSize="19sp"
+            android:textColor="@color/white" />
+
+        <!-- android:cacheColorHint="#00000000"简单的列表显示 -->
+
+    </LinearLayout>
+    <TextView
+            android:id="@+id/backtext"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="@color/black"
+            android:gravity="center_vertical"
+            android:drawableLeft="@drawable/rc_bar_back"
+            android:text="返回"
+            android:textColor="@color/white" />
+
+    <EditText
+        android:id="@+id/et_oldpwd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/content_bg"
+        android:ems="10"
+        android:textSize="15sp"
+        android:gravity="center_horizontal"
+        android:hint="@string/curr_pwd"
+        android:inputType="textPassword"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp" />
+
+    <EditText
+        android:id="@+id/et_newpwd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/et_oldpwd"
+        android:layout_below="@+id/et_oldpwd"
+        android:layout_marginTop="26dp"
+        android:background="@drawable/content_bg"
+        android:ems="10"
+        android:gravity="center_horizontal"
+        android:hint="@string/newpwd"
+        android:inputType="textPassword"
+        android:paddingBottom="10dp"
+        android:textSize="15sp"
+        android:paddingTop="10dp" />
+
+    <EditText
+        android:id="@+id/et_agpwd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/et_newpwd"
+        android:layout_marginTop="21dp"
+        android:background="@drawable/content_bg"
+        android:ems="10"
+        android:gravity="center_horizontal"
+        android:hint="@string/againpwd"
+        android:inputType="textPassword"
+        android:textSize="15sp"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp" />
+
+    <Button
+        android:id="@+id/bt_submit"
+        style="@style/Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/et_agpwd"
+        android:layout_marginTop="34dp"
+        android:text="@string/submit" />
+
+</RelativeLayout>
