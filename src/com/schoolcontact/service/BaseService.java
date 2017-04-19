@@ -8,11 +8,11 @@ import com.schoolcontact.utils.EventList;
 
 /**
  * @author Star
- * @description  ·şÎñ»ùÀà£¨°üÀ¨Í¨ÓÃµÄURLÒÔ¼°ÉÏÏÂÎÄÒıÓÃµÈ£©
+ * @description  æœåŠ¡åŸºç±»ï¼ˆåŒ…æ‹¬é€šç”¨çš„URLä»¥åŠä¸Šä¸‹æ–‡å¼•ç”¨ç­‰ï¼‰
  */
 public abstract class BaseService {
 
-	public final String baseUrl = EventList.BASEURL;//"http://58.154.51.211:8080/k12/   http://jxt.syhcinfo.com/";
+	public final String baseUrl = EventList.BASEURL;
 	public final ScContext sccontext = ScContext.getInstance();
 	public final FinalHttp fh = new FinalHttp();
 	public final ObjectMapper objectMapper = new ObjectMapper();
