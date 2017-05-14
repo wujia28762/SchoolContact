@@ -18,12 +18,12 @@ http://zhushou.360.cn/detail/index/soft_id/3127192?recrefer=SE_D_%E5%8D%8E%E5%88
 > 因为业务主要依托第三方IM,所以很少使用`服务`,`内容提供者`,`sqlite`等组件<br>
 > `mvc`代码冗余高,afinal注解基于`反射`.效率低<br>
 > 很少自定义控件
+> 班级圈布局，使用一致的item，通过隐藏控件来完成。
 ## 改善缺陷
 >见：
 >>https://github.com/wujia28762/MvpDemo
 ## 不是缺陷
 >在低版本的SDK中,在班级圈中,实现了ListView的可见位置局部加载。
->>具体代码：
 ```Java
 private void updateSingleRow() {
 
@@ -43,3 +43,6 @@ private void updateSingleRow() {
 	}
 ```
 > 简单进行了屏幕适配,动态获取了窗口宽度,按权重进行计算每个布局的长度。
+> Bitmap使用了弱引用。
+> 使用了Lrucache
+> 对返回的图片进行了压缩。
