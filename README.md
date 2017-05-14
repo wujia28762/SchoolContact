@@ -12,18 +12,18 @@ http://zhushou.360.cn/detail/index/soft_id/3127192?recrefer=SE_D_%E5%8D%8E%E5%88
 >![](http://p16.qhimg.com/dm/168_300_/t01a8c6a46edf69aee1.png "设置")
 >![](http://p18.qhimg.com/dm/168_300_/t01d505e32a04f2e24a.png "IM")
 ## 项目缺陷
-> 并没有对Activity,fragment,adapter,holder做好`封装`<br>
-> `JSON解析`在UI线程<br>
-> 后台业务返回没有对view的`生命周期`进行检查<br>
-> 因为业务主要依托第三方IM,所以很少使用`服务`,`内容提供者`,`sqlite`等组件<br>
-> `mvc`代码冗余高,afinal注解基于`反射`.效率低<br>
-> 很少自定义控件
-> 班级圈布局，使用一致的item，通过隐藏控件来完成。
+> 1.并没有对Activity,fragment,adapter,holder做好`封装`<br>
+> 2.`JSON解析`在UI线程<br>
+> 3.后台业务返回没有对view的`生命周期`进行检查<br>
+> 4.因为业务主要依托第三方IM,所以很少使用`服务`,`内容提供者`,`sqlite`等组件<br>
+> 5.`mvc`代码冗余高,afinal注解基于`反射`.效率低<br>
+> 6.很少自定义控件
+> 7.班级圈布局，使用一致的item，通过隐藏控件来完成。
 ## 改善缺陷
 >见：
 >>https://github.com/wujia28762/MvpDemo
 ## 不是缺陷
->在低版本的SDK中,在班级圈中,实现了ListView的可见位置局部加载。
+>1.在低版本的SDK中,在班级圈中,实现了ListView的可见位置局部加载。
 ```Java
 private void updateSingleRow() {
 
@@ -42,7 +42,7 @@ private void updateSingleRow() {
 		}
 	}
 ```
-> 简单进行了屏幕适配,动态获取了窗口宽度,按权重进行计算每个布局的长度。<br>
-> Bitmap使用了弱引用。<br>
-> 使用了Lrucache。<br>
-> 对返回的图片进行了压缩。
+> 2.简单进行了屏幕适配,动态获取了窗口宽度,按权重进行计算每个布局的长度。<br>
+> 3.Bitmap使用了弱引用。<br>
+> 4.使用了Lrucache。<br>
+> 5.对返回的图片进行了压缩。
