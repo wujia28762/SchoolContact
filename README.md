@@ -42,4 +42,4 @@ private void updateSingleRow() {
 		}
 	}
 ```
-> 2.简单进行了屏幕适配,动态获取了窗口宽度,按权重进行计算每个布局的长度,Bitmap使用了弱引用,使用了Lrucache,对返回的图片进行了压缩。
+> 2.Bitmap使用了弱引用,使用了Lrucache,对返回的图片进行了压缩。
