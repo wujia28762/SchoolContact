@@ -1,7 +1,7 @@
 # 项目名称
 SchoolContact
 ## 项目结构&类型
->`mvc`+`imageLoder`+`afinal`+`jackson`+`lrucache`
+>`mvc模型`+`imageLoder`+`afinal`+`jackson`+`lrucache`
 >>为沈阳师范大学幼儿园和中小学提供线下交流平台,依托融云IM,完成1对1对话,1对多通知,作业;班级圈.
 >>>集成友盟（报告分析）,信鸽推送等SDK.
 ## 地址
@@ -11,35 +11,15 @@ http://zhushou.360.cn/detail/index/soft_id/3127192?recrefer=SE_D_%E5%8D%8E%E5%88
 >![](http://p16.qhimg.com/dm/168_300_/t015b3e425d8c41431d.png "班级圈")
 >![](http://p16.qhimg.com/dm/168_300_/t01a8c6a46edf69aee1.png "设置")
 >![](http://p18.qhimg.com/dm/168_300_/t01d505e32a04f2e24a.png "IM")
-## 项目缺陷
-> 1.并没有对Activity,fragment,adapter,holder做好`封装`<br>
-> 2.`JSON解析`在UI线程<br>
-> 3.后台业务返回没有对view的`生命周期`进行检查<br>
-> 4.因为业务主要依托第三方IM,所以很少使用`服务`,`内容提供者`,`sqlite`等组件<br>
-> 5.`mvc`代码冗余高,afinal注解基于`反射`.效率低<br>
-> 6.很少自定义控件
-> 7.班级圈布局，使用一致的item，通过隐藏控件来完成。
-## 改善缺陷
+## 项目介绍
+### 角色
+> 教师、家长、学生。
+### 功能
+> 以融云IM功能为核心，推送内容包括：作业消息、通知消息、聊天内容等。
+> 班级圈类似于朋友圈，通过数据库关系屏蔽非本班级范围内的班级圈信息。
+> 教师角色拥有发送通知、作业、班级圈消息的权限。和其他非核心功能。
+> 家长和学生拥有接收联系人列表中消息的权限，对于本班级的同学可以发起会话的权限。
+> 使用友盟SDK收集错误，使用信鸽推送进行消息的推送。
+## MVP项目
 >见：
 >>https://github.com/wujia28762/MvpDemo
-## 不是缺陷
->1.在低版本的SDK中,在班级圈中,实现了ListView的可见位置局部加载。
-```Java
-private void updateSingleRow() {
-
-		if (mListView != null) {
-			int start = mListView.getFirstVisiblePosition();
-
-			for (int i = start, j = mListView.getLastVisiblePosition(); i <= j; i++) {
-				View view = mListView.getChildAt(i - start);
-				if (view.getTag() instanceof ViewHolder) {
-					ViewHolder view1 = (ViewHolder) (mListView.getChildAt(i
-							- start).getTag());
-					view1.getmGridViewAdapter().notifyDataSetChanged();
-				}
-
-			}
-		}
-	}
-```
-> 2.Bitmap使用了弱引用,使用了Lrucache,对返回的图片进行了压缩。
